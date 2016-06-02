@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.ui;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -16,14 +16,19 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.niharika.newsrssfeedsexample.R;
+import com.example.niharika.newsrssfeedsexample.data.NewsContract;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class NewsDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+
     private Cursor mCursor;
     private long mStartId;
+
 
     private long mSelectedItemId;
 
@@ -73,7 +78,7 @@ public class NewsDetailActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             if (getIntent() != null && getIntent().getData() != null) {
-                mStartId = NewsContract.NewsEntry.getItemId(getIntent().getData());
+                mStartId = NewsContract.Items.getItemId(getIntent().getData());
                 mSelectedItemId = mStartId;
             }
         }
@@ -134,4 +139,6 @@ public class NewsDetailActivity extends AppCompatActivity
             return (mCursor != null) ? mCursor.getCount() : 0;
         }
     }
+
+
 }

@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.data;
 
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -8,8 +8,10 @@ import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.support.annotation.Nullable;
+
+import com.example.niharika.newsrssfeedsexample.remoteUtils.SelectionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +20,9 @@ import java.util.List;
  * Created by Niharika on 5/28/2016.
  */
 public class NewsProvider extends ContentProvider {
-    private NewsDbHelper mOpenHelper;
+    private SQLiteOpenHelper mOpenHelper;
 
-    interface Tables {
+    public interface Tables {
         String ITEMS = "items";
     }
 
@@ -32,8 +34,8 @@ public class NewsProvider extends ContentProvider {
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = NewsContract.CONTENT_AUTHORITY;
-        matcher.addURI(authority, NewsContract.PATH_NEWS, ITEMS);
-        matcher.addURI(authority, NewsContract.PATH_NEWS + "/#", ITEMS__ID);
+        matcher.addURI(authority, "items", ITEMS);
+        matcher.addURI(authority, "items/#", ITEMS__ID);
         return matcher;
     }
 
@@ -43,7 +45,19 @@ public class NewsProvider extends ContentProvider {
         return true;
     }
 
-    @Nullable
+    @Override
+    public String getType(Uri uri) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case ITEMS:
+                return NewsContract.Items.CONTENT_TYPE;
+            case ITEMS__ID:
+                return NewsContract.Items.CONTENT_ITEM_TYPE;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+    }
+
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
@@ -55,21 +69,6 @@ public class NewsProvider extends ContentProvider {
         return cursor;
     }
 
-    @Nullable
-    @Override
-    public String getType(Uri uri) {
-        final int match = sUriMatcher.match(uri);
-        switch (match) {
-            case ITEMS:
-                return NewsContract.NewsEntry.CONTENT_TYPE;
-            case ITEMS__ID:
-                return NewsContract.NewsEntry.CONTENT_ITEM_TYPE;
-            default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
-        }
-    }
-
-    @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -78,7 +77,7 @@ public class NewsProvider extends ContentProvider {
             case ITEMS: {
                 final long _id = db.insertOrThrow(Tables.ITEMS, null, values);
                 getContext().getContentResolver().notifyChange(uri, null);
-                return NewsContract.NewsEntry.buildItemUri(_id);
+                return NewsContract.Items.buildItemUri(_id);
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -116,7 +115,7 @@ public class NewsProvider extends ContentProvider {
             }
             case ITEMS__ID: {
                 final String _id = paths.get(1);
-                return builder.table(Tables.ITEMS).where(NewsContract.NewsEntry.COLUMN_ID + "=?", _id);
+                return builder.table(Tables.ITEMS).where(NewsContract.Items._ID + "=?", _id);
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -124,6 +123,11 @@ public class NewsProvider extends ContentProvider {
         }
     }
 
+    /**
+     * Apply the given set of {@link ContentProviderOperation}, executing inside
+     * a {@link SQLiteDatabase} transaction. All changes will be rolled back if
+     * any single one fails.
+     */
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
             throws OperationApplicationException {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();

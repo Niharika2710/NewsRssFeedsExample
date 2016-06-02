@@ -1,10 +1,10 @@
-<com.example.niharika.newsrssfeedsexample.DrawInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.niharika.newsrssfeedsexample.ui.DrawInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/draw_insets_frame_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.niharika.newsrssfeedsexample.ObservableScrollView
+    <com.example.niharika.newsrssfeedsexample.ui.ObservableScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -27,7 +27,7 @@
 
             </FrameLayout>
 
-            <com.example.niharika.newsrssfeedsexample.MaxWidthLinearLayout
+            <com.example.niharika.newsrssfeedsexample.ui.MaxWidthLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -83,22 +83,22 @@
                     android:textColorLink="@color/theme_accent"
                     android:textSize="@dimen/detail_body_text_size" />
 
-            </com.example.niharika.newsrssfeedsexample.MaxWidthLinearLayout>
+            </com.example.niharika.newsrssfeedsexample.ui.MaxWidthLinearLayout>
         </FrameLayout>
-    </com.example.niharika.newsrssfeedsexample.ObservableScrollView>
+    </com.example.niharika.newsrssfeedsexample.ui.ObservableScrollView>
 
     <android.support.design.widget.FloatingActionButton
+
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-
         android:clickable="true"
+        android:contentDescription="@string/action_share"
         android:src="@drawable/ic_share"
         app:elevation="@dimen/fab_elevation"
         app:fabSize="normal"
         app:pressedTranslationZ="@dimen/fab_pressed_elevation" />
 
-</com.example.niharika.newsrssfeedsexample.DrawInsetsFrameLayout>
+</com.example.niharika.newsrssfeedsexample.ui.DrawInsetsFrameLayout>

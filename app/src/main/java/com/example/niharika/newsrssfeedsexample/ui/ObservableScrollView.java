@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.ui;
 
 /**
  * Created by Niharika on 5/30/2016.

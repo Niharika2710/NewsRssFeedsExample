@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.remoteUtils;
 
 
 import android.content.ContentValues;

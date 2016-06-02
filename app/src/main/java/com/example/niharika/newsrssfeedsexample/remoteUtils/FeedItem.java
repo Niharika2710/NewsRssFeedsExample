@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.remoteUtils;
 
 /**
  * Created by Niharika on 5/29/2016.

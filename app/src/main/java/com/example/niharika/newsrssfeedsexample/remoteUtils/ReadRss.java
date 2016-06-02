@@ -1,7 +1,9 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.remoteUtils;
 
 import android.util.Log;
 import android.util.Xml;
+
+import com.example.niharika.newsrssfeedsexample.remoteUtils.FeedItem;
 
 import org.xmlpull.v1.XmlPullParser;
 

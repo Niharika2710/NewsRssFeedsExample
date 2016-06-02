@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.remoteUtils;
 
 import android.app.IntentService;
 import android.content.ContentProviderOperation;
@@ -11,6 +11,10 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.text.format.Time;
 import android.util.Log;
+
+import com.example.niharika.newsrssfeedsexample.data.NewsContract;
+import com.example.niharika.newsrssfeedsexample.remoteUtils.FeedItem;
+import com.example.niharika.newsrssfeedsexample.remoteUtils.ReadRss;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +39,6 @@ public class UpdaterService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         Time time = new Time();
-
         ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni == null || !ni.isConnected()) {
@@ -49,7 +52,7 @@ public class UpdaterService extends IntentService {
         // Don't even inspect the intent, we only do one thing, and that's fetch content.
         ArrayList<ContentProviderOperation> cpo = new ArrayList<ContentProviderOperation>();
 
-        Uri dirUri = NewsContract.NewsEntry.buildDirUri();
+        Uri dirUri = NewsContract.Items.buildDirUri();
 
         // Delete all items
         cpo.add(ContentProviderOperation.newDelete(dirUri).build());
@@ -62,11 +65,10 @@ public class UpdaterService extends IntentService {
         for (int i = 0; i < feedItemList.size(); i++) {
             ContentValues values = new ContentValues();
 
-            values.put(NewsContract.NewsEntry.COLUMN_TITLE, feedItemList.get(i).getTitle());
-            values.put(NewsContract.NewsEntry.COLUMN_DESC, feedItemList.get(i).getDescription());
-            values.put(NewsContract.NewsEntry.COLUMN_PHOTO_URL, feedItemList.get(i).getImageUrl());
-            time.parse3339((feedItemList.get(i).getPubDate()));
-            values.put(NewsContract.NewsEntry.COLUMN_PUB_DATE, time.toMillis(false));
+            values.put(NewsContract.Items.TITLE, feedItemList.get(i).getTitle());
+            values.put(NewsContract.Items.BODY, feedItemList.get(i).getDescription());
+            values.put(NewsContract.Items.PHOTO_URL, feedItemList.get(i).getImageUrl());
+            values.put(NewsContract.Items.PUBLISHED_DATE, feedItemList.get(i).getPubDate());
             cpo.add(ContentProviderOperation.newInsert(dirUri).withValues(values).build());
         }
 

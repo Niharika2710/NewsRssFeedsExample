@@ -12,4 +12,11 @@
     <dimen name="max_photo_height">350dp</dimen>
     <dimen name="starting_collapsable_toolbar">132dp</dimen>
 
+    <!-- Widget -->
+    <dimen name="widget_default_height">110dp</dimen>
+    <dimen name="widget_default_width">110dp</dimen>
+
+    <dimen name="widget_margin">8dp</dimen>
+    <dimen name="md_title_textsize">20sp</dimen>
+
 </resources>

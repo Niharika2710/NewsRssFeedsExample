@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.ui;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.text.Html;
-import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.niharika.newsrssfeedsexample.R;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -182,16 +182,11 @@ public class NewsDetailFragment extends Fragment implements
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             titleView.setText(mCursor.getString(NewsLoader.Query.COLUMN_TITLE));
-            bylineView.setText(Html.fromHtml(
-                    DateUtils.getRelativeTimeSpanString(
-                            mCursor.getLong(NewsLoader.Query.COLUMN_PUB_DATE),
-                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-                            DateUtils.FORMAT_ABBREV_ALL).toString()
-                            + " by <font color='#ffffff'>"));
+            bylineView.setText(mCursor.getString(NewsLoader.Query.COLUMN_PUB_DATE));
 
             bodyView.setText(Html.fromHtml(mCursor.getString(NewsLoader.Query.COLUMN_DESC)));
 
-            Picasso.with(getContext()).load(mCursor.getString(
+            Picasso.with(getActivity().getApplicationContext()).load(mCursor.getString(
                     NewsLoader.Query.COLUMN_PHOTO_URL)).into(imageView);
 
         } else {

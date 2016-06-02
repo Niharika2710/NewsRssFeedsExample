@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -10,6 +10,8 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
+
+import com.example.niharika.newsrssfeedsexample.R;
 
 /**
  * Created by Niharika on 5/30/2016.

@@ -1,4 +1,4 @@
-package com.example.niharika.newsrssfeedsexample;
+package com.example.niharika.newsrssfeedsexample.ui;
 
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
@@ -11,29 +11,45 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.niharika.newsrssfeedsexample.R;
+import com.example.niharika.newsrssfeedsexample.data.NewsContract;
+import com.example.niharika.newsrssfeedsexample.remoteUtils.ConnectionUtils;
+import com.example.niharika.newsrssfeedsexample.remoteUtils.UpdaterService;
+import com.example.niharika.newsrssfeedsexample.utilities.AnalyticsApplication;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String TAG = "MainActivity";
+
     private Toolbar mToolbar;
     private CollapsingToolbarLayout collapsingToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
+    private AdView mAdView;
+    public Tracker mTracker;
+    boolean isConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         collapsingToolbar = ((CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar));
         collapsingToolbar.setTitle("TechNews");
@@ -47,16 +63,37 @@ public class MainActivity extends AppCompatActivity implements
 
         //  mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
+        isConnected = ConnectionUtils.isNetworkAvailable(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getLoaderManager().initLoader(0, null, this);
 
         if (savedInstanceState == null) {
             refresh();
         }
+
+
+        // for AdMob
+        mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                // Check the LogCat to get your test device ID
+                // .addTestDevice("Enter your test device id here")
+                .build();
+        mAdView.loadAd(adRequest);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
     }
 
     private void refresh() {
-        startService(new Intent(this, UpdaterService.class));
+
+        if (isConnected) {
+            startService(new Intent(this, UpdaterService.class));
+        } else {
+            ConnectionUtils.showToastForDuration(this, getString(R.string.offline_text), 10000,
+                    Gravity.CENTER);
+        }
     }
 
     @Override
@@ -71,6 +108,36 @@ public class MainActivity extends AppCompatActivity implements
         super.onStop();
         unregisterReceiver(mRefreshingReceiver);
     }
+
+    @Override
+    public void onPause() {
+        if (mAdView != null) {
+            mAdView.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mAdView != null) {
+            mAdView.resume();
+        }
+
+        Log.i(TAG, "Setting screen name: Main Screen");
+        mTracker.setScreenName("Image~" + "Main Screen");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
+        super.onDestroy();
+    }
+
 
     private boolean mIsRefreshing = false;
 
@@ -98,10 +165,9 @@ public class MainActivity extends AppCompatActivity implements
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
-        StaggeredGridLayoutManager sglm =
-                new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(sglm);
+        LinearLayoutManager lm =
+                new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(lm);
     }
 
     @Override
@@ -130,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View view) {
                     startActivity(new Intent(Intent.ACTION_VIEW,
-                            NewsContract.NewsEntry.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                            NewsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
                 }
             });
             return vh;
@@ -140,11 +206,10 @@ public class MainActivity extends AppCompatActivity implements
         public void onBindViewHolder(ViewHolder holder, int position) {
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(NewsLoader.Query.COLUMN_TITLE));
-            holder.subtitleView.setText(
-                    DateUtils.getRelativeTimeSpanString(
-                            mCursor.getLong(NewsLoader.Query.COLUMN_PUB_DATE),
-                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-                            DateUtils.FORMAT_ABBREV_ALL).toString());
+            holder.subtitleView.setText(mCursor.getString(NewsLoader.Query.COLUMN_PUB_DATE));
+            //   DateUtils.getRelativeTimeSpanString(
+                 /*           System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+                            DateUtils.FORMAT_ABBREV_ALL) */
 
             Picasso.with(getApplicationContext()).load(mCursor.getString(
                     NewsLoader.Query.COLUMN_PHOTO_URL)).into(holder.thumbnailView);
